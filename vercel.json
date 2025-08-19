@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/cart/add", "dest": "/api/cart/add.js" },
+    { "src": "/api/cart/remove", "dest": "/api/cart/remove.js" },
+    { "src": "/api/cart/clear", "dest": "/api/cart/clear.js" },
+    { "src": "/api/cart/update", "dest": "/api/cart/update.js" },
+    { "src": "/api/cart", "dest": "/api/cart/index.js" },
+
+    { "src": "/api/products/search", "dest": "/api/products/search.js" },
+    { "src": "/api/products/rate", "dest": "/api/products/rate.js" },
+    { "src": "/api/products/add", "dest": "/api/products/add.js" },
+    { "src": "/api/products/delete", "dest": "/api/products/delete.js" },
+    { "src": "/api/products/edit", "dest": "/api/products/edit.js" },
+    { "src": "/api/products/([^/]+)", "dest": "/api/products/id.js" },
+    { "src": "/api/products", "dest": "/api/products/index.js" },
+
+    { "src": "/api/comments/add", "dest": "/api/comments/add.js" },
+    { "src": "/api/comments/product", "dest": "/api/comments/product.js" },
+    { "src": "/api/comments/all", "dest": "/api/comments/all.js" },
+    { "src": "/api/comments/approve", "dest": "/api/comments/approve.js" },
+    { "src": "/api/comments/delete", "dest": "/api/comments/delete.js" },
+    { "src": "/api/comments/edit", "dest": "/api/comments/edit.js" },
+    { "src": "/api/comments/report", "dest": "/api/comments/report.js" },
+    { "src": "/api/comments/reply", "dest": "/api/comments/reply.js" },
+
+    { "src": "/api/(.*)", "dest": "/api/$1.js" }
+  ]
+}
+
