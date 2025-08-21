@@ -7,24 +7,28 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const user = verifyToken(req);
-    const token = req.headers.authorization.split(" ")[1];
+    const user = await verifyToken(req); // <- async
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(400).json({ message: "No token provided" });
 
     const client = await connectToDatabase();
     const db = client.db("ecommerce");
 
-    // 🔍 تحقق هل التوكن موجود بالفعل في blacklist
+    // حظر Access Token الحالي
     const existing = await db.collection("token_blacklist").findOne({ token });
-    if (existing) {
-      return res.status(400).json({ message: "Token already blacklisted" });
+    if (!existing) {
+      await db.collection("token_blacklist").insertOne({
+        token,
+        userId: user.id,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // مدة صلاحية Access Token ساعة
+      });
     }
 
-    await db.collection("token_blacklist").insertOne({
-      token,
-      userId: user.id,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // أسبوع
-    });
+    // حظر كل Refresh Tokens الخاصة بالمستخدم
+    await db.collection("refresh_tokens").deleteMany({ userId: user.id });
 
     res.status(200).json({ message: "Logged out successfully" });
   } catch (err) {
@@ -32,4 +36,5 @@ module.exports = async (req, res) => {
     res.status(401).json({ message: "Invalid token" });
   }
 };
+
 

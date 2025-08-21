@@ -22,7 +22,6 @@ module.exports = async function rateLimiter(req, res) {
   };
 
   if (now - record.lastRequestTime > RATE_LIMIT_WINDOW) {
-    // إعادة التهيئة
     record.count = 1;
     record.lastRequestTime = now;
   } else {

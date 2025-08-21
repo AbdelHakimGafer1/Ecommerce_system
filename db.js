@@ -1,24 +1,25 @@
-// db.js
-const mongoose = require('mongoose');
-require('dotenv').config();
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-      tls: true,
-      dbName: "ecommerce"
-    });
+const { MongoClient } = require("mongodb");
 
-    console.log('✅ [DB] Secure MongoDB Connected');
-  } catch (err) {
-    console.error('❌ [DB] Connection Error:', err.message);
-    process.exit(1);
-  }
-};
+let cachedDb = null;
 
-module.exports = connectDB;
+async function connectToDatabase() {
+  if (cachedDb) return cachedDb;
+
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error("❌ MONGODB_URI is missing");
+
+  const client = new MongoClient(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+
+  await client.connect();
+
+  const db = client.db("ecommerce"); // ✅ هنا بتحدد اسم الـ DB
+  cachedDb = db;
+  return db;
+}
+
+module.exports = connectToDatabase;
 

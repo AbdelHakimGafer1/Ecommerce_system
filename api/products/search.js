@@ -1,10 +1,17 @@
 const connectToDatabase = require("../../utils/db");
 const logEvent = require("../../utils/logger");
+const { verifyToken } = require("../../utils/auth");
 
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Only GET method allowed" });
   }
+
+  let username = "guest";
+  try {
+    const user = await verifyToken(req); 
+    username = user?.email || "guest";
+  } catch {}
 
   try {
     const { q } = req.query;
@@ -21,12 +28,12 @@ module.exports = async (req, res) => {
           { description: { $regex: q, $options: "i" } },
           { brand: { $regex: q, $options: "i" } },
           { category: { $regex: q, $options: "i" } },
-          { tags: { $in: [q] } }
+          { tags: { $elemMatch: { $regex: q, $options: "i" } } }
         ]
       })
       .toArray();
 
-    await logEvent({ action: "product_search", user: "guest", meta: { q } });
+    await logEvent({ action: "product_search", user: username, meta: { query: q } });
 
     res.status(200).json(products);
   } catch (err) {

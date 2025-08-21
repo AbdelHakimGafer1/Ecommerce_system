@@ -1,5 +1,26 @@
+require('dotenv').config();
+
 const bcrypt = require("bcryptjs");
-const connectToDatabase = require("../../utils/db");
+const jwt = require("jsonwebtoken");
+const connectToDatabase = require("../../db"); // ✅ يستدعي db.js
+
+
+// Helper function لتوليد tokens
+function generateTokens(user) {
+  const accessToken = jwt.sign(
+    { id: user._id, email: user.email, role: user.role, username: user.username },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" } // صلاحية الـ Access Token ساعة
+  );
+
+  const refreshToken = jwt.sign(
+    { id: user._id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: "7d" } // صلاحية الـ Refresh Token 7 أيام
+  );
+
+  return { accessToken, refreshToken };
+}
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
@@ -8,47 +29,58 @@ module.exports = async (req, res) => {
 
   const { username, email, password } = req.body;
 
-  // التحقق من البيانات
   if (!username || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const client = await connectToDatabase();
-    const db = client.db("ecommerce");
+    const db = await connectToDatabase();
 
-    // تأكد إن الإيميل مش موجود
+    // Check existing user
     const existingUser = await db.collection("users").findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "Email already registered" });
     }
 
-    // تشفير الباسورد
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // حفظ المستخدم
+    // Insert new user
     const result = await db.collection("users").insertOne({
       username,
       email,
-      role:"user",
+      role: "user",
       password: hashedPassword,
       createdAt: new Date(),
     });
 
-    // استجابة بدون الباسورد
+    const user = {
+      _id: result.insertedId,
+      username,
+      email,
+      role: "user",
+    };
+
+    // توليد الـ tokens
+    const { accessToken, refreshToken } = generateTokens(user);
+
+    // حفظ الـ Refresh Token في DB (آمن)
+    await db.collection("refresh_tokens").insertOne({
+      userId: user._id,
+      token: refreshToken,
+      createdAt: new Date(),
+    });
+
     res.status(201).json({
       message: "User registered successfully",
-      user: {
-        id: result.insertedId,
-        username,
-
-        email,
-       role:"user",
-      },
+      user,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
-    console.error("Registration error:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
+  console.error("❌ Registration error:", error);
+  res.status(500).json({ message: error.message, stack: error.stack });
+}
+
 };
 

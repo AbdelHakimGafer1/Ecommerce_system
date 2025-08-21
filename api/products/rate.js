@@ -4,8 +4,17 @@ const { verifyToken } = require("../../utils/auth");
 const logEvent = require("../../utils/logger");
 
 module.exports = async (req, res) => {
-  const allowed = await verifyToken(req, res, false); // أي مستخدم مسموح له
-  if (!allowed) return;
+  // توثيق المستخدم
+  let user;
+  try {
+    user = await verifyToken(req); // أي مستخدم
+    req.user = user;
+  } catch (err) {
+    if (err.message === "ACCESS_TOKEN_EXPIRED") {
+      return res.status(401).json({ message: "Access token expired" });
+    }
+    return res.status(401).json({ message: err.message });
+  }
 
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Only POST method allowed" });
@@ -15,7 +24,8 @@ module.exports = async (req, res) => {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const { id, rating } = body;
 
-    if (!id || id.length !== 24 || isNaN(rating) || rating < 0 || rating > 5) {
+    // تحقق من صحة البيانات
+    if (!id || id.length !== 24 || isNaN(rating) || rating < 1 || rating > 5) {
       return res.status(400).json({ message: "Invalid rating or product ID" });
     }
 
@@ -27,23 +37,39 @@ module.exports = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    const newRating = (product.rating + rating) / 2;
+    // حساب متوسط التقييم بدقة أكبر
+    const { rating: currentRating = 0, ratingCount = 0 } = product;
+    const newRating = ((currentRating * ratingCount) + rating) / (ratingCount + 1);
 
     await db.collection("products").updateOne(
       { _id: new ObjectId(id) },
-      { $set: { rating: parseFloat(newRating.toFixed(2)), updatedAt: new Date() } }
+      {
+        $set: { rating: parseFloat(newRating.toFixed(2)), updatedAt: new Date() },
+        $inc: { ratingCount: 1 }
+      }
     );
 
+    // Logging
     await logEvent({
       action: "product_rated",
-      user: req.user?.email || "unknown",
+      user: req.user.email,
       meta: { productId: id, rating }
     });
 
-    res.status(200).json({ message: "Product rated successfully", rating: newRating });
+    return res.status(200).json({
+      message: "Product rated successfully",
+      rating: parseFloat(newRating.toFixed(2)),
+      ratingCount: ratingCount + 1
+    });
+
   } catch (err) {
     console.error("❌ Product Rating Error:", err.message);
-    res.status(500).json({ message: "Server error while rating product" });
+    await logEvent({
+      action: "product_rating_failed",
+      user: req.user.email,
+      meta: { error: err.message }
+    });
+    return res.status(500).json({ message: "Server error while rating product" });
   }
 };
 

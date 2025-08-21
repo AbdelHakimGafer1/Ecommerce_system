@@ -30,13 +30,11 @@ module.exports = async (req, res) => {
       );
 
       if (exists) {
-        // ✅ المنتج موجود → زود الكمية
         await db.collection("cart").updateOne(
           { userId: user.id, "items.productId": new ObjectId(productId) },
           { $inc: { "items.$.quantity": parseInt(quantity) } }
         );
       } else {
-        // ➕ المنتج مش موجود → ضيفه
         await db.collection("cart").updateOne(
           { userId: user.id },
           {
@@ -50,7 +48,6 @@ module.exports = async (req, res) => {
         );
       }
     } else {
-      // 🧾 السلة مش موجودة أو مفيهاش items → أنشئ جديدة أو عدلها بالكامل
       await db.collection("cart").updateOne(
         { userId: user.id },
         {

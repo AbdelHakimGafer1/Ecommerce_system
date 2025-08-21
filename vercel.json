@@ -27,6 +27,8 @@
     { "src": "/api/comments/report", "dest": "/api/comments/report.js" },
     { "src": "/api/comments/reply", "dest": "/api/comments/reply.js" },
 
+    { "src": "/api/auth/refresh-token", "dest": "/api/auth/refresh-token.js" },
+
     { "src": "/api/(.*)", "dest": "/api/$1.js" }
   ]
 }

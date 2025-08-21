@@ -17,7 +17,6 @@ async function logEvent({ action, user, ip, userAgent, timestamp, error }) {
 
     await db.collection("logs").insertOne(log);
 
-    // ✅ ألوان مميزة للـ console
     console.log(
       chalk.blue(`[${log.timestamp}]`) +
       chalk.yellow(` [${log.action}]`) +

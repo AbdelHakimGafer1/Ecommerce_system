@@ -46,7 +46,6 @@ const userSchema = new mongoose.Schema({
   }]
 }, { timestamps: true });
 
-// لو حابب تضيف تشفير تلقائي للباسورد
  const bcrypt = require('bcryptjs');
  userSchema.pre('save', async function (next) {
    if (!this.isModified('password')) return next();

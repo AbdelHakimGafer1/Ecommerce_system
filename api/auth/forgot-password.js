@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const connectToDatabase = require("../../utils/db");
+const { sendResetEmail } = require("../../utils/mailer");
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
@@ -18,21 +19,28 @@ module.exports = async (req, res) => {
     const user = await db.collection("users").findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // 🛡️ إنشاء توكن صالح لـ 15 دقيقة فقط
+    // إنشاء token جديد
     const resetToken = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "15m" }
     );
 
-    // 💡 في الحالة الحقيقية بنبعت إيميل، لكن هنا نطبع الرابط فقط
+    // تخزين token مؤقت في DB مع صلاحية
+    await db.collection("password_reset_tokens").insertOne({
+      userId: user._id,
+      token: resetToken,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 دقيقة
+      createdAt: new Date()
+    });
+
     const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
 
-    console.log("🔗 Reset Link:", resetLink);
-const { sendResetEmail } = require("../../utils/mailer");
-await sendResetEmail(email, resetLink);
+    // إرسال البريد
+    await sendResetEmail(email, resetLink);
 
-    res.status(200).json({ message: "Reset link generated (check console)" });
+    console.log("🔗 Reset Link:", resetLink);
+    res.status(200).json({ message: "Reset link sent (check email or console)" });
   } catch (err) {
     console.error("❌ Forgot Password Error:", err.message);
     res.status(500).json({ message: "Internal Server Error" });

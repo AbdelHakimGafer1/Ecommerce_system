@@ -2,22 +2,16 @@ const connectToDatabase = require("../../utils/db");
 const { ObjectId } = require("mongodb");
 
 module.exports = async (req, res) => {
-  if (req.method !== "GET") {
-    return res.status(405).json({ message: "Only GET allowed" });
-  }
+  if (req.method !== "GET") return res.status(405).json({ message: "Only GET allowed" });
 
   try {
     const { productId } = req.query;
-
-    if (!productId || productId.length !== 24) {
-      return res.status(400).json({ message: "Invalid productId" });
-    }
+    if (!productId || productId.length !== 24) return res.status(400).json({ message: "Invalid productId" });
 
     const client = await connectToDatabase();
     const db = client.db("ecommerce");
 
-    const comments = await db
-      .collection("comments")
+    const comments = await db.collection("comments")
       .find({ productId: new ObjectId(productId), approved: true })
       .sort({ createdAt: -1 })
       .toArray();

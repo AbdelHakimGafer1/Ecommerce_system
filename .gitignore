@@ -1,1 +1,24 @@
+# Node modules
+node_modules/
+
+# Environments
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Build files
+dist/
+build/
 .vercel
