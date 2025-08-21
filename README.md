@@ -29,6 +29,51 @@
 
 ---
 
+
+# Frontend Setup Guide for `Ecommerce_system` API
+
+## 1️⃣ تشغيل المشروع محليًا (Development)
+- **مطلوب:** تثبيت [Vercel CLI](https://vercel.com/docs/cli)
+
+npm install -g vercel
+
+
+* بعد كده:
+
+```bash
+# استنساخ المشروع
+git clone git@github.com:AbdelHakimGafer1/Ecommerce_system.git
+cd Ecommerce_system
+
+# تثبيت الحزم
+npm install
+
+# تشغيل السيرفر محليًا
+vercel dev
+```
+
+* السيرفر المحلي هيشتغل عادة على:
+
+```
+http://localhost:3000
+```
+
+* كل الـ Serverless Endpoints هتكون متاحة على نفس الـ URL.
+
+
+## 3️⃣ ملاحظات مهمة
+
+* أي تعديل على Serverless Functions أثناء `vercel dev` بيتفعل تلقائي بعد الحفظ.
+* تأكد من استخدام نفس الـ endpoints سواء محلي أو نسخة منشورة.
+* لو فيه endpoints محمية بـ JWT، لازم الـ frontend يضيف التوكن في الـ headers عند عمل أي request.
+
+```
+
+---
+
+
+```
+
 # 🛒 E-Commerce REST API Documentation
 
 This is a complete documentation of the **E-Commerce REST API**, including all endpoints, request methods, authentication requirements, and example `curl` commands.
