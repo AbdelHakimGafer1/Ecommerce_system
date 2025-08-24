@@ -604,6 +604,164 @@ curl -X POST http://localhost:3000/api/reviews/add \
   -H "Authorization: Bearer <TOKEN>" \
   -d '{"productId":"<PRODUCT_ID>","rating":5,"review":"Excellent!"}'
 ```
+.
+
+---
+
+# Orders API
+
+
+## 1. إضافة أوردر جديد
+
+**Endpoint:**  
+`POST /api/orders/add`
+
+**Headers:**  
+- `Authorization: Bearer <accessToken>`  
+- `Content-Type: application/json`
+
+**Body:**
+```json
+{
+  "items": [
+    { "productId": "PRODUCT_ID", "quantity": 2 },
+    { "productId": "ANOTHER_ID", "quantity": 1 }
+  ],
+  "address": "123 Main St, Cairo",
+  "paymentMethod": "cash"
+}
+````
+
+**cURL Example:**
+
+```bash
+curl -X POST http://localhost:3000/api/orders/add \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <accessToken>" \
+  -d '{
+    "items":[{"productId":"68a539687978df6586abc78a","quantity":2}],
+    "address":"123 Main St, Cairo",
+    "paymentMethod":"cash"
+  }'
+```
+
+---
+
+## 2. جلب أوردر بالـ ID
+
+**Endpoint:**
+`GET /api/orders/get/:id`
+
+**Headers:**
+
+* `Authorization: Bearer <accessToken>`
+
+**cURL Example:**
+
+```bash
+curl -X GET http://localhost:3000/api/orders/get/ORDER_ID \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+---
+
+## 3. جلب كل الأوردرات
+
+* **User** → بيشوف أوردراته فقط
+* **Admin** → بيشوف كل الأوردرات
+
+**Endpoint:**
+`GET /api/orders/list`
+
+**Headers:**
+
+* `Authorization: Bearer <accessToken>`
+
+**cURL Example:**
+
+```bash
+curl -X GET http://localhost:3000/api/orders/list \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+---
+
+## 4. إلغاء أوردر
+
+**Endpoint:**
+`PATCH /api/orders/cancel`
+
+**Headers:**
+
+* `Authorization: Bearer <accessToken>`
+* `Content-Type: application/json`
+
+**Body:**
+
+```json
+{
+  "orderId": "ORDER_ID"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:3000/api/orders/cancel \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <accessToken>" \
+  -d '{"orderId":"68a92e0b51dd985f02cd986f"}'
+```
+
+---
+
+## 5. تحديث حالة أوردر (Admin only)
+
+**Endpoint:**
+`PATCH /api/orders/update-status`
+
+**Headers:**
+
+* `Authorization: Bearer <adminAccessToken>`
+* `Content-Type: application/json`
+
+**Body:**
+
+```json
+{
+  "orderId": "ORDER_ID",
+  "status": "shipped"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:3000/api/orders/update-status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <adminAccessToken>" \
+  -d '{"orderId":"68a92e0b51dd985f02cd986f", "status":"shipped"}'
+```
+
+---
+
+## 📌 ملاحظات
+
+* الحالات المسموحة للـ `status`:
+
+  * `pending` (افتراضي عند إنشاء أوردر)
+  * `shipped`
+  * `delivered`
+  * `cancelled`
+* الـ **User** ما يقدرش يغيّر حالة الأوردر، بس يقدر يلغي لو لسه مش `shipped` أو `delivered`.
+* الـ **Admin** يقدر يعدل حالة أي أوردر ويشوف كل الأوردرات.
+
+---
+
+
+
+
+
 
 ### Get Reviews
 
