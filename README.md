@@ -315,7 +315,142 @@ curl -X POST http://localhost:3000/api/auth/logout \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+
 ---
+
+
+
+## 🔑 Authentication
+All requests must include a valid **Bearer Token** in the `Authorization` header.
+
+Example:
+```http
+Authorization: Bearer <your_admin_access_token>
+````
+
+---
+
+## 📋 Endpoints
+
+### 1️⃣ List All Users
+
+**GET** `/api/admin/list-users`
+
+Returns a list of all users.
+
+#### Curl Example
+
+```bash
+curl -X GET http://localhost:3000/api/admin/list-users \
+  -H "Authorization: Bearer <ADMIN_ACCESS_TOKEN>"
+```
+
+#### Example Response
+
+```json
+[
+  {
+    "_id": "68a520bd27a4785d22df0e8e",
+    "username": "ahmed123",
+    "email": "ah77me7766od@example.com",
+    "role": "user",
+    "createdAt": "2025-06-20T12:11:25.928Z"
+  },
+  {
+    "_id": "68aa792ee041928e1d912b39",
+    "username": "hakim2",
+    "email": "nhakim2@example12.com",
+    "role": "admin",
+    "createdAt": "2025-06-25T09:22:00.123Z"
+  }
+]
+```
+
+---
+
+### 2️⃣ Promote User to Admin
+
+**PATCH** `/api/admin/promote-user`
+
+Promote a regular user to **admin**.
+
+#### Request Body
+
+```json
+{
+  "userId": "<USER_ID>"
+}
+```
+
+#### Curl Example
+
+```bash
+curl -X PATCH http://localhost:3000/api/admin/promote-user \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <ADMIN_ACCESS_TOKEN>" \
+  -d '{
+    "userId": "68a520bd27a4785d22df0e8e"
+  }'
+```
+
+#### Example Response
+
+```json
+{
+  "message": "User promoted to admin",
+  "userId": "68a520bd27a4785d22df0e8e"
+}
+```
+
+---
+
+### 3️⃣ Demote User (Remove Admin Role)
+
+**PATCH** `/api/admin/demote-user`
+
+Remove admin privileges from a user.
+
+#### Request Body
+
+```json
+{
+  "userId": "<USER_ID>"
+}
+```
+
+#### Curl Example
+
+```bash
+curl -X PATCH http://localhost:3000/api/admin/demote-user \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <ADMIN_ACCESS_TOKEN>" \
+  -d '{
+    "userId": "68a520bd27a4785d22df0e8e"
+  }'
+```
+
+#### Example Response
+
+```json
+{
+  "message": "User demoted to regular user",
+  "userId": "68a520bd27a4785d22df0e8e"
+}
+```
+
+---
+
+## 🚀 Notes
+
+* These endpoints are **admin-only**.
+* `401 Unauthorized` → If no token or invalid token.
+* `403 Forbidden` → If user is not an admin.
+* `404 Not Found` → If `userId` does not exist in the database.
+
+---
+
+
+
 
 ## 2️⃣ Products
 
