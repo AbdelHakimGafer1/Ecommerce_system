@@ -150,6 +150,14 @@ This is a complete documentation of the **E-Commerce REST API**, including all e
 | `/api/orders/cancel` | PATCH | ✅ Yes | Cancel order (if not shipped/delivered) | ```bash curl -X PATCH http://localhost:3000/api/orders/cancel -H "Content-Type: application/json" -H "Authorization: Bearer <accessToken>" -d '{"orderId":"68a92e0b51dd985f02cd986f"}'``` |
 | `/api/orders/update-status` | PATCH | ✅ Yes (Admin) | Update order status (`pending`, `shipped`, `delivered`, `cancelled`) | ```bash curl -X PATCH http://localhost:3000/api/orders/update-status -H "Content-Type: application/json" -H "Authorization: Bearer <adminAccessToken>" -d '{"orderId":"68a92e0b51dd985f02cd986f", "status":"shipped"}'``` |
 
+## 👑 Admin API
+
+| Endpoint | Method | Auth | Description | Example curl |
+|----------|--------|------|-------------|--------------|
+| `/api/admin/list-users` | GET | ✅ Yes (Admin) | Get a list of all users | ```bash curl -X GET http://localhost:3000/api/admin/list-users -H "Authorization: Bearer <ADMIN_ACCESS_TOKEN>"``` |
+| `/api/admin/promote-user` | PATCH | ✅ Yes (Admin) | Promote a user to admin | ```bash curl -X PATCH http://localhost:3000/api/admin/promote-user -H "Content-Type: application/json" -H "Authorization: Bearer <ADMIN_ACCESS_TOKEN>" -d '{"userId":"68a520bd27a4785d22df0e8e"}'``` |
+| `/api/admin/demote-user` | PATCH | ✅ Yes (Admin) | Demote user (remove admin role) | ```bash curl -X PATCH http://localhost:3000/api/admin/demote-user -H "Content-Type: application/json" -H "Authorization: Bearer <ADMIN_ACCESS_TOKEN>" -d '{"userId":"68a520bd27a4785d22df0e8e"}'``` |
+
 ---
 
 ## **6️⃣ Notes**
