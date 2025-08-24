@@ -140,6 +140,15 @@ This is a complete documentation of the **E-Commerce REST API**, including all e
 | `/api/reviews/add` | POST | Yes | Add review to product | ```bash curl -X POST http://localhost:3000/api/reviews/add -H "Content-Type: application/json" -H "Authorization: Bearer <TOKEN>" -d '{"productId":"<PRODUCT_ID>","rating":5,"review":"Excellent!"}'``` |
 | `/api/reviews/<PRODUCT_ID>` | GET | No | Get reviews for a product | ```bash curl -X GET http://localhost:3000/api/reviews/<PRODUCT_ID>``` |
 | `/api/reviews/delete/<REVIEW_ID>` | DELETE | Yes | Delete review | ```bash curl -X DELETE http://localhost:3000/api/reviews/delete/<REVIEW_ID> -H "Authorization: Bearer <TOKEN>"``` |
+## 📦 Orders API
+
+| Endpoint | Method | Auth | Description | Example curl |
+|----------|--------|------|-------------|--------------|
+| `/api/orders/add` | POST | ✅ Yes | Add new order | ```bash curl -X POST http://localhost:3000/api/orders/add -H "Content-Type: application/json" -H "Authorization: Bearer <accessToken>" -d '{"items":[{"productId":"68a539687978df6586abc78a","quantity":2}],"address":"123 Main St, Cairo","paymentMethod":"cash"}'``` |
+| `/api/orders/get/:id` | GET | ✅ Yes | Get order by ID | ```bash curl -X GET http://localhost:3000/api/orders/get/ORDER_ID -H "Authorization: Bearer <accessToken>"``` |
+| `/api/orders/list` | GET | ✅ Yes | List orders (user → own orders, admin → all orders) | ```bash curl -X GET http://localhost:3000/api/orders/list -H "Authorization: Bearer <accessToken>"``` |
+| `/api/orders/cancel` | PATCH | ✅ Yes | Cancel order (if not shipped/delivered) | ```bash curl -X PATCH http://localhost:3000/api/orders/cancel -H "Content-Type: application/json" -H "Authorization: Bearer <accessToken>" -d '{"orderId":"68a92e0b51dd985f02cd986f"}'``` |
+| `/api/orders/update-status` | PATCH | ✅ Yes (Admin) | Update order status (`pending`, `shipped`, `delivered`, `cancelled`) | ```bash curl -X PATCH http://localhost:3000/api/orders/update-status -H "Content-Type: application/json" -H "Authorization: Bearer <adminAccessToken>" -d '{"orderId":"68a92e0b51dd985f02cd986f", "status":"shipped"}'``` |
 
 ---
 
